@@ -20,7 +20,7 @@ class ManyRq
 		@hub = Hub.new
 		@fires_count = 0
 		@last_results = []
-		@last_results_limit = 1000
+		@last_results_limit = 200
 		@threads_n = 1
 		@workers = Workers.new @threads_n
 	end

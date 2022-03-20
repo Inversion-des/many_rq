@@ -388,6 +388,7 @@ class RqHub < Dashboard
 					time_s = time_ms_avarage.to_f / 1000
 					bar_len = (5*time_s).round   # 5o = 1s — o = 200ms
 					plus = bar_len - 25  # 5s max
+					plus_part = ''
 					if plus > 0
 						bar_len = 25
 						plus_part = "+#{plus}"

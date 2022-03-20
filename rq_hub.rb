@@ -178,7 +178,7 @@ class RqHub < Dashboard
 	def wait_load_stopped
 		top_log 'wait for loading stopped...'
 		sleep 1 until @clients.all? {|c| ['paused','stopped'].include?(c.node_data['state']) }
-		sleep 10
+		sleep 15
 		top_log 'loading stopped'
 	end
 

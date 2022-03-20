@@ -125,49 +125,47 @@ class ManyRq
 		end
 
 		@last_results_mutex.sync do
-		# >>
-		# keep lasn N records
-		# n = @last_results.size - @last_results_limit
-		# @last_results.shift n if n >0
+			# keep lasn N records
+			# n = @last_results.size - @last_results_limit
+			# @last_results.shift n if n >0
 
-		# keep only records for the last minute
-		moment_in_past = Time.now - @process_results_for_last_mins_N*60
-		@last_results.reject! {|d| d[:at] < moment_in_past }
+			# keep only records for the last minute
+			moment_in_past = Time.now - @process_results_for_last_mins_N*60
+			@last_results.reject! {|d| d[:at] < moment_in_past }
 
-		# output
-		bar_len = (5*ttime).round   # 5o = 1s — o = 200ms
-		plus = bar_len - 50  # 10s max
-		if plus > 0
-			bar_len = 50
-			plus_part = "+#{plus}"
-		end
-		bar = "%-20s#{plus_part}" % ('o'*bar_len)
-		ok_count = @last_results.count {|d| d[:ok] }
-		ok_perc = (ok_count.to_f / @last_results.size * 100)
-		time_ms_avarage = @last_results.map {|d| d[:time_ms] }.avrg.to_i
-		@fires_count += 1
+			# output
+			bar_len = (5*ttime).round   # 5o = 1s — o = 200ms
+			plus = bar_len - 50  # 10s max
+			if plus > 0
+				bar_len = 50
+				plus_part = "+#{plus}"
+			end
+			bar = "%-20s#{plus_part}" % ('o'*bar_len)
+			ok_count = @last_results.count {|d| d[:ok] }
+			ok_perc = (ok_count.to_f / @last_results.size * 100)
+			time_ms_avarage = @last_results.map {|d| d[:time_ms] }.avrg.to_i
+			@fires_count += 1
 
-		# check page body
-		# File.open 'page.html', 'wb' do |f|
-		#   f.write res.body
-		# end
+			# check page body
+			# File.open 'page.html', 'wb' do |f|
+			#   f.write res.body
+			# end
 
-		if color
-			@hub.fire :fire_result, "\e[1;#{color}m#{bar}\e[m - #{ms} ms (#{res&.body&.length||0} B) - #{status} - #{server_ip} (cf:#{cache_status})"
-		else
-			@hub.fire :fire_result, "  \e[1;33m!!! unexpected status - #{status}\e[m" + ' '*50
-		end
-		# *ok is for last @last_results_limit
-		@hub.fire :stats_update, "%.1f %% ok (total rq: #{@fires_count}) - #{@threads_n} thr" % ok_perc
+			if color
+				@hub.fire :fire_result, "\e[1;#{color}m#{bar}\e[m - #{ms} ms (#{res&.body&.length||0} B) - #{status} - #{server_ip} (cf:#{cache_status})"
+			else
+				@hub.fire :fire_result, "  \e[1;33m!!! unexpected status - #{status}\e[m" + ' '*50
+			end
+			# *ok is for last @last_results_limit
+			@hub.fire :stats_update, "%.1f %% ok (total rq: #{@fires_count}) - #{@threads_n} thr" % ok_perc
 
-		# -health
-		data = {
-			ok_perc:ok_perc,
-			failed_perc: 100-ok_perc,
-			time_ms_avarage: time_ms_avarage,
-		}
-		@hub.fire :health_update, data
-		# >>
+			# -health
+			data = {
+				ok_perc:ok_perc,
+				failed_perc: 100-ok_perc,
+				time_ms_avarage: time_ms_avarage,
+			}
+			@hub.fire :health_update, data
 		end
 	rescue KnownError
 		@hub.fire :error, $!.to_s

@@ -141,6 +141,7 @@ class RqHub < Dashboard
 	def start_many_rq
 		state[:stopped] = false
 		set_state 'working'
+		top_log 'calibration started...'
 		@many_rq.start_in_thr
 		@calibration_last_moment = Time.now
 		@f_calibrating = true
@@ -154,12 +155,14 @@ class RqHub < Dashboard
 			@health[:time_ms_avarage_base] = @health[:time_ms_avarage]
 
 			@f_calibrating = false
+			top_log 'calibration done'
 			for client in @clients
 				client.cmd 'start', state[:target]
 			end
 		end
 		@thr2 = Thread.new do
 			sleep @calibration_interval_s
+			top_log 'prepare for a new calibration'
 			for client in @clients
 				client.cmd 'stop'
 			end

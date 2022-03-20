@@ -82,8 +82,7 @@ class RqHub < Dashboard
 		if !state[:stopped]
 			# wait for clients connected and stopped
 			sleep 3
-			sleep 1 until @clients.all? {|c| ['paused','stopped'].include?(c.node_data['state']) }
-			sleep 5
+			wait_load_stopped
 			# restart
 			start_many_rq
 		end
@@ -166,12 +165,18 @@ class RqHub < Dashboard
 			end
 			@many_rq.stop
 			@many_rq.reset_last_results
-			sleep 1 until @clients.all? {|c| ['paused','stopped'].include?(c.node_data['state']) }
-			sleep 5
+			wait_load_stopped
 			next if state[:stopped]
 			# (>>>)
 			start_many_rq
 		end
+	end
+
+	def wait_load_stopped
+		top_log 'wait for loading stopped...'
+		sleep 1 until @clients.all? {|c| ['paused','stopped'].include?(c.node_data['state']) }
+		sleep 10
+		top_log 'loading stopped'
 	end
 
 	def run_server

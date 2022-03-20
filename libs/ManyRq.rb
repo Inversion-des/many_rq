@@ -73,6 +73,7 @@ class ManyRq
 		ttime = Time.now - _time_start
 		ms = (ttime*1000).round
 
+		hit_res = {time_ms:ms, at:Time.now}
 		# check response
 		case status
 			# PROTECTED
@@ -81,17 +82,17 @@ class ManyRq
 			# 304 = Not Modified (get from cache)
 			when '301', '302', '304'
 				color = 37
-				@last_results << {ok:true, time_ms:ms}
+				hit_res[:ok] = true
 			# OK
 			when '200', '304'
 				# if res.body.include? 'Retry for a live version'
 				# 	status = 'cf cache'
 				# 	$stderr << res.body
 				# 	color = 35
-				# 	@last_results << {ok:false, time_ms:ms}
+				# 	hit_res[:ok] = false
 				# else
 					color = 32
-					@last_results << {ok:true, time_ms:ms}
+					hit_res[:ok] = true
 				# end
 			# FILED
 			# 503 = Service Unavailable
@@ -100,19 +101,23 @@ class ManyRq
 			# 525 = SSL handshake failed
 			when '503', '520', '521', '525'
 				color = 31
-				@last_results << {ok:false, time_ms:ms}
+				hit_res[:ok] = false
 			when '404'
 				if @f_404_is_hit
 					color = 35
-					@last_results << {ok:false, time_ms:ms}
+					hit_res[:ok] = false
 				else
 					color = 32
-					@last_results << {ok:true, time_ms:ms}
+					hit_res[:ok] = true
 				end
 			# 'timeout', 'err' + unexpected errors
 			else
 				color = 35
-				@last_results << {ok:false, time_ms:ms}
+				hit_res[:ok] = false
+		end
+
+		unless hit_res[:ok].nil?
+			@last_results << hit_res
 		end
 
 		# keep lasn N records

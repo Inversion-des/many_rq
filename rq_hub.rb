@@ -198,6 +198,13 @@ class RqHub < Dashboard
 							else
 								msg.chomp!(msg_splitter)
 								if msg == 'ping'
+									# dead client detection
+									# restart timer
+									@offline_detector_thr&.kill
+									@offline_detector_thr = Thread.new do
+										sleep 20
+										raise "dead client: #{client_helper.node_data['name']}"
+									end
 									# puts 'ping'
 									next
 								end

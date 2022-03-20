@@ -21,6 +21,7 @@ class ManyRq
 		@fires_count = 0
 		@last_results = []
 		@last_results_limit = 200
+		@process_results_for_last_mins_N = 1
 		@threads_n = 1
 		@workers = Workers.new @threads_n
 	end
@@ -121,8 +122,12 @@ class ManyRq
 		end
 
 		# keep lasn N records
-		n = @last_results.size - @last_results_limit
-		@last_results.shift n if n >0
+		# n = @last_results.size - @last_results_limit
+		# @last_results.shift n if n >0
+
+		# keep only records for the last minute
+		moment_in_past = Time.now - @process_results_for_last_mins_N*60
+		@last_results.reject! {|d| d[:at] < moment_in_past }
 
 		# output
 		bar_len = (5*ttime).round   # 5o = 1s — o = 200ms

@@ -18,7 +18,7 @@ class RqHub < Dashboard
 		@clients = []
 		@state_fname = 'hub_state.dat'
 		@many_rq = ManyRq.new
-		@many_rq.set_threads 2
+		@many_rq.set_threads 5
 		state[:stopped] = true if state[:stopped].nil?
 		@calibration_every_n_mins = 15
 		@calibration_interval_s = @calibration_every_n_mins*60

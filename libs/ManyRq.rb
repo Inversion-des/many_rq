@@ -21,6 +21,7 @@ class ManyRq
 		@fires_count = 0
 		@last_results = []
 		@last_results_limit = 200
+		@last_results_mutex = Mutex.new
 		@process_results_for_last_mins_N = 1
 		@threads_n = 1
 		@workers = Workers.new @threads_n
@@ -31,7 +32,9 @@ class ManyRq
 	end
 
 	def reset_last_results
-		@last_results.clear
+		@last_results_mutex.sync do
+			@last_results.clear
+		end
 	end
 
 	def set_threads(n)
@@ -121,6 +124,8 @@ class ManyRq
 			@last_results << hit_res
 		end
 
+		@last_results_mutex.sync do
+		# >>
 		# keep lasn N records
 		# n = @last_results.size - @last_results_limit
 		# @last_results.shift n if n >0
@@ -162,6 +167,8 @@ class ManyRq
 			time_ms_avarage: time_ms_avarage,
 		}
 		@hub.fire :health_update, data
+		# >>
+		end
 	rescue KnownError
 		@hub.fire :error, $!.to_s
 		# top_log $!.to_s

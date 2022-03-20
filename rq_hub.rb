@@ -490,6 +490,8 @@ class ClientHelper
 	def send(msg)
 		return if !@client
 		@client.puts msg+@msg_splitter
+	rescue
+		@rq_hub.top_log '(send) '+$!.inspect
 	end
 	def send_json(data)
 		return if !@client

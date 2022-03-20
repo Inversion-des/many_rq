@@ -1,0 +1,9 @@
+defscrollback 15000
+defutf8 on
+
+# do not close wnd on process exit
+# k=kill wnd, r=restart process
+zombie kr
+
+screen -t top 2  		top -c
+screen -t Main 1  		ruby rq_node.rb

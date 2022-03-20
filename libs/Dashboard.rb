@@ -25,9 +25,10 @@ class Dashboard
 			exit
 		end
 		
+		system 'clear'
 		show_combo_hint
 		@p.clear_rest_screen
-		system 'clear'
+		show_combo_hint  # 2 calls needed to fix problem on Linux that the first hint is cleared
 		@p.back_cursor_to_cmd
 	rescue
 		stop! ERROR

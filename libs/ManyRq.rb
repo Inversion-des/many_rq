@@ -52,8 +52,8 @@ class ManyRq
 			params = {
 				use_ssl:true, 
 				verify_mode:OpenSSL::SSL::VERIFY_NONE, 
-				open_timeout:5,
-				read_timeout:5
+				open_timeout:4,
+				read_timeout:4
 			}
 			res = Net::HTTP.start(uri.host, params) do |http|
 				server_ip = http.ipaddr rescue '?'
